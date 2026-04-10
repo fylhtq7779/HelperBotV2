@@ -62,4 +62,44 @@
 ## Лицензия
 
 MIT
-</div>
+
+---
+
+<details>
+<summary><b>English version</b></summary>
+
+## What the bot does
+
+The bot simplifies skin creation for BeamNG.drive. Instead of manually assembling the mod structure (jbeam, materials.json, correct paths), you just:
+
+1. Send a DDS texture file (2048x2048)
+2. Enter a skin name
+3. Pick a vehicle from the list
+
+The bot generates a ZIP archive with the correct structure, ready to install in the game.
+
+## Supported vehicles
+
+40+ vehicles from the standard BeamNG.drive lineup: Autobello Piccolina, Bruckell Bastion, Gavril Barstow, Ibishu 200BX, Hirochi SBR4, Civetta Bolide, and more. The list updates automatically when new game versions are released.
+
+## Auto-updating templates
+
+Skin templates come from the [Skin Helper](https://www.beamng.com/resources/skin-helper.15037/) mod. GitHub Actions checks for mod updates daily and syncs templates automatically, so the bot always stays compatible with the latest game version.
+
+## Tech stack
+
+- **Python 3.12** + [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
+- **GitHub Actions** - auto-deploy on push, daily template update checks
+- **systemd** - process management on the server
+
+## Acknowledgements
+
+This project is built on top of the **[Skin Helper](https://www.beamng.com/resources/skin-helper.15037/)** mod for BeamNG.drive.
+
+Huge thanks to **Beamer XD** for creating Skin Helper and all the vehicle templates, and to **@Top Tier Studios** for maintaining and developing the mod. This bot wouldn't exist without their work.
+
+## License
+
+MIT
+
+</details>
