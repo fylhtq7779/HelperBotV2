@@ -13,52 +13,43 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Словарь соответствия игровых названий и внутренних идентификаторов
-CAR_NAMES = {
-    'autobello': 'Autobello Piccolina',
-    'midtruck': 'Autobello Stambecco',
-    'bastion': 'Bruckell Bastion',
-    'legran': 'Bruckell LeGran',
-    'moonhawk': 'Bruckell Moonhawk',
-    'burnside': 'Burnside Special',
-    'vivace': 'Cherrier Vivace',
-    'bolide': 'Civetta Bolide',
-    'scintilla': 'Civetta Scintilla',
-    'etk800': 'ETK 800-Series',
-    'etki': 'ETK I-Series',
-    'etkc': 'ETK K-Series',
-    'barstow': 'Gavril Barstow',
-    'bluebuck': 'Gavril Bluebuck',
-    'pickup': 'Gavril D-Series',
-    'fullsize': 'Gavril Grand Marshal',
-    'van': 'Gavril H-Series',
-    'md_series': 'Gavril MD-Series',
-    'roamer': 'Gavril Roamer',
-    'sbr': 'Hirochi SBR4',
-    'sunburst2': 'Hirochi Sunburst',
-    'bx': 'Ibishu 200BX',
-    'covet': 'Ibishu Covet',
-    'hopper': 'Ibishu Hopper',
-    'miramar': 'Ibishu Miramar',
-    'pessima': 'Ibishu Pessima (88-91)',
-    'pigeon': 'Ibishu Pigeon',
-    'wigeon': 'Ibishu Wigeon',
-    'lansdale': 'Soliad Lansdale',
-    'wendover': 'Soliad Wendover',
-    'racetruck': 'SP Dunekicker',
-    'rockbouncer': 'SP Rockbasher',
-    'citybus': 'Wentward DT40L'
-}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SKINHELPER_DIR = os.path.join(BASE_DIR, "SkinHelper")
+CAR_NAMES_FILE = os.path.join(BASE_DIR, "car_names.json")
 
-# Список доступных машин (внутренние идентификаторы)
-CARS = [
-    'autobello', 'barstow', 'bastion', 'bluebuck', 'bolide', 'burnside',
-    'bx', 'citybus', 'covet', 'etk800', 'etkc', 'etki',
-    'fullsize', 'hopper', 'lansdale', 'legran', 'md_series', 'midsize', 'midtruck',
-    'miramar', 'moonhawk', 'pessima', 'pickup', 'pigeon', 'racetruck',
-    'roamer', 'rockbouncer', 'sbr', 'scintilla', 'sunburst2',
-    'van', 'vivace', 'wendover', 'wigeon'
-]
+
+def load_car_names() -> dict:
+    """Загружает маппинг car_id -> display name из car_names.json"""
+    try:
+        with open(CAR_NAMES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.warning("car_names.json не найден, display-имена недоступны")
+        return {}
+
+
+def scan_available_cars() -> list:
+    """Сканирует SkinHelper/ и возвращает отсортированный список car_id"""
+    cars = []
+    if not os.path.isdir(SKINHELPER_DIR):
+        logger.error(f"Директория SkinHelper не найдена: {SKINHELPER_DIR}")
+        return cars
+    for name in sorted(os.listdir(SKINHELPER_DIR)):
+        car_dir = os.path.join(SKINHELPER_DIR, name)
+        if not os.path.isdir(car_dir):
+            continue
+        has_template = any(
+            os.path.isdir(os.path.join(car_dir, sub))
+            for sub in os.listdir(car_dir)
+            if sub.lower() == "skinname"
+        )
+        if has_template:
+            cars.append(name)
+    return cars
+
+
+CAR_NAMES = load_car_names()
+CARS = scan_available_cars()
 
 # Пути к файлам
 STATS_FILE = "skin_stats.json"
@@ -104,32 +95,28 @@ def get_car_display_name(car_id: str) -> str:
 
 def get_template_path(car_id: str, template_name: str) -> str:
     """Получает путь к шаблону для конкретной машины"""
-    # Путь к папке с шаблонами (относительно расположения скрипта)
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    template_dir = os.path.join(base_dir, "SkinHelper", car_id, "SKINNAME")
-    logger.info(f"Ищем шаблоны в директории: {template_dir}")
-    
-    if not os.path.exists(template_dir):
-        logger.error(f"Директория с шаблонами не найдена: {template_dir}")
+    car_dir = os.path.join(SKINHELPER_DIR, car_id)
+    template_dir = None
+    for sub in os.listdir(car_dir):
+        if sub.lower() == "skinname" and os.path.isdir(os.path.join(car_dir, sub)):
+            template_dir = os.path.join(car_dir, sub)
+            break
+    if template_dir is None:
         raise ValueError(f"Шаблоны для машины {car_id} не найдены")
-    
-    # Если ищем jbeam файл, находим любой .jbeam файл в папке
+
     if template_name.endswith('.jbeam'):
         for file in os.listdir(template_dir):
             if file.endswith('.jbeam'):
-                jbeam_path = os.path.join(template_dir, file)
-                logger.info(f"Найден jbeam шаблон: {jbeam_path}")
-                return jbeam_path
-        logger.error(f"Jbeam шаблон не найден в директории: {template_dir}")
+                return os.path.join(template_dir, file)
         raise ValueError(f"Jbeam шаблон для машины {car_id} не найден")
-    
-    # Для других файлов (например, materials.json) используем точное имя
+
     path = os.path.join(template_dir, template_name)
-    if not os.path.exists(path):
-        logger.error(f"Шаблон не найден: {path}")
-        raise ValueError(f"Шаблон {template_name} для машины {car_id} не найден")
-    
-    return path
+    if os.path.exists(path):
+        return path
+    alt_path = os.path.join(template_dir, "skin.materials.json")
+    if template_name == "materials.json" and os.path.exists(alt_path):
+        return alt_path
+    raise ValueError(f"Шаблон {template_name} для машины {car_id} не найден")
 
 def create_jbeam_content(car_id: str, skin_name: str, display_name: str) -> str:
     """Создает содержимое jbeam файла на основе шаблона"""
