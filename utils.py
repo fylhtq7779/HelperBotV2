@@ -126,21 +126,21 @@ def create_jbeam_content(car_id: str, skin_name: str, display_name: str) -> str:
     with open(template_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Заменяем все возможные варианты отображаемого имени
+    # Заменяем имя и автора в jbeam
     lines = content.split('\n')
     for i, line in enumerate(lines):
         if '"name"' in line:
-            if 'YOUR SKIN NAME' in line:
-                lines[i] = f'       "name":"{display_name}",'
-            elif 'SKIN NAME' in line:
+            line_lower = line.lower()
+            if 'skin name' in line_lower or 'skin_name' in line_lower:
                 lines[i] = f'       "name":"{display_name}",'
         elif '"authors"' in line:
             lines[i] = f'       "authors":"Skin Helper Bot",'
-    
+
     content = '\n'.join(lines)
-    
-    # Заменяем SKINNAME (это всегда название скина в одно слово)
+
+    # Заменяем SKINNAME/skinname (шаблоны непоследовательны в регистре)
     content = content.replace("SKINNAME", skin_name)
+    content = content.replace("skinname", skin_name)
     
     logger.info(f"Создан jbeam контент: {content}")
     return content
@@ -157,8 +157,9 @@ def create_materials_content(car_id: str, skin_name: str) -> str:
     with open(template_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Заменяем все вхождения SKINNAME
+    # Заменяем SKINNAME/skinname (шаблоны непоследовательны в регистре)
     content = content.replace("SKINNAME", skin_name)
+    content = content.replace("skinname", skin_name)
     
     logger.info(f"Создан materials контент: {content}")
     return content
