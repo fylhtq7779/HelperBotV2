@@ -133,7 +133,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 "2. Введите название скина (только английские буквы в нижнем регистре)\n"
                 "3. Введите отображаемое имя скина (любые символы)\n"
                 "4. Выберите машину из списка\n\n"
-                "Бот создаст архив со скином, который можно будет установить в игру.",
+                "Бот создаст архив со скином, который можно будет установить в игру.\n\n"
+                "Шаблоны скинов из мода Skin Helper\n"
+                "Автор: Beamer XD | Поддержка: @Top Tier Studios\n"
+                "beamng.com/resources/skin-helper.15037",
                 reply_markup=reply_markup
             )
         elif query.data == "stats":
