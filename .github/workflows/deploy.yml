@@ -15,7 +15,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root/TelegaBot/telegram-bot
+            cd /opt/skinbot/app
             git pull origin main
-            pip3 install -r requirements.txt -q
+            /opt/skinbot/venv/bin/pip install -r requirements.txt -q
             systemctl restart skinbot
