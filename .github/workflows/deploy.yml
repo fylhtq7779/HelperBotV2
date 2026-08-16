@@ -15,7 +15,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             cd /opt/skinbot/app
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             /opt/skinbot/venv/bin/pip install -r requirements.txt -q
             systemctl restart skinbot
+            sleep 5
+            systemctl is-active --quiet skinbot
