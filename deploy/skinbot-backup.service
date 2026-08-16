@@ -1,0 +1,6 @@
+[Unit]
+Description=Backup skinbot state (users, stats)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/skinbot-backup.sh

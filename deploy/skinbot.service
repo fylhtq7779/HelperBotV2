@@ -1,0 +1,19 @@
+[Unit]
+Description=BeamNG Skin Helper Telegram Bot
+After=network-online.target xray.service
+Wants=network-online.target
+Requires=xray.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/skinbot/app
+# Telegram из РФ недоступен напрямую, весь HTTP бота идёт через локальный xray
+Environment=ALL_PROXY=socks5://127.0.0.1:10808
+ExecStart=/opt/skinbot/venv/bin/python bot.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
