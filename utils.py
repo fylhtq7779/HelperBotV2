@@ -53,7 +53,7 @@ CARS = scan_available_cars()
 
 # Пути к файлам
 STATS_FILE = "skin_stats.json"
-USERS_FILE = "bot_users.json"
+USERS_FILE = "users.json"
 
 def save_stats(stats: Counter) -> None:
     """Сохраняет статистику в файл"""
@@ -78,15 +78,22 @@ def load_stats() -> Counter:
 
 def save_users(users: Set[int]) -> None:
     """Сохраняет список пользователей в файл"""
-    with open('users.json', 'w') as f:
-        json.dump(list(users), f)
+    try:
+        with open(USERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(sorted(users), f)
+    except Exception as e:
+        logger.error(f"Ошибка при сохранении пользователей: {e}")
 
 def load_users() -> Set[int]:
     """Загружает список пользователей из файла"""
     try:
-        with open('users.json', 'r') as f:
+        with open(USERS_FILE, 'r', encoding='utf-8') as f:
             return set(json.load(f))
     except FileNotFoundError:
+        return set()
+    except Exception as e:
+        # битый файл не должен ронять бота на старте
+        logger.error(f"Ошибка при загрузке пользователей: {e}")
         return set()
 
 def get_car_display_name(car_id: str) -> str:
