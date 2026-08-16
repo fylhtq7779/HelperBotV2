@@ -258,7 +258,8 @@ async def handle_car_selection(update: Update, context: ContextTypes.DEFAULT_TYP
     if user_id not in user_states or user_states[user_id] != UserState.WAITING_FOR_CAR:
         return
     
-    car_id = query.data.split('_')[1]
+    # split с maxsplit=1: иначе md_series и us_semi обрежутся до md и us
+    car_id = query.data.split('_', 1)[1]
     user_data[user_id]['car_id'] = car_id
     
     try:

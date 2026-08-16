@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Проверяет обновления мода Skin Helper и обновляет шаблоны."""
 
+from __future__ import annotations  # str | None на python 3.9 (сервер на Debian 11)
+
 import os
 import re
 import sys

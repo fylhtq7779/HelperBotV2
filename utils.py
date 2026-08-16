@@ -175,9 +175,10 @@ def create_skin_archive(car_id: str, skin_name: str, display_name: str, dds_cont
         materials_content = create_materials_content(car_id, skin_name)
         
         # Добавляем файлы в архив
-        dds_path = f"{car_id}/{skin_name}/{car_id}_skin_{skin_name}.dds"
-        jbeam_path = f"{car_id}/{skin_name}/{car_id}.jbeam"
-        materials_path = f"{car_id}/{skin_name}/materials.json"
+        # BeamNG ищет содержимое мода в /vehicles/ от корня архива
+        dds_path = f"vehicles/{car_id}/{skin_name}/{car_id}_skin_{skin_name}.dds"
+        jbeam_path = f"vehicles/{car_id}/{skin_name}/{car_id}.jbeam"
+        materials_path = f"vehicles/{car_id}/{skin_name}/materials.json"
         
         logger.info(f"Добавляем файлы в архив:")
         logger.info(f"DDS: {dds_path}")
@@ -192,5 +193,9 @@ def create_skin_archive(car_id: str, skin_name: str, display_name: str, dds_cont
     return zip_buffer
 
 def validate_skin_name(name: str) -> bool:
-    """Проверяет корректность названия скина"""
-    return name.isalpha() and name.islower() 
+    """Проверяет корректность названия скина.
+
+    Только строчная латиница: имя уходит в пути внутри архива,
+    кириллица и юникод там ломают загрузку мода игрой.
+    """
+    return bool(name) and all('a' <= ch <= 'z' for ch in name)
